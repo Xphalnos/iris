@@ -20,7 +20,12 @@ void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc) {
     ps2_ata_init(speed->ata, speed);
     ps2_eeprom_init(speed->eeprom);
 
+    // 0009 - TS
+    // 0010 - ES1?
+    // 0011 - ES2
+    speed->rev1 = 0x0011;
     speed->rev8 |= 2;
+    speed->rev3 |= SPD_CAPS_ATA;
 }
 
 void ps2_speed_destroy(struct ps2_speed* speed) {
@@ -34,7 +39,7 @@ void ps2_speed_destroy(struct ps2_speed* speed) {
 uint64_t ps2_speed_read8(struct ps2_speed* speed, uint32_t addr) {
     addr &= 0xffff;
 
-    printf("speed: read8 %08x %08x\n", addr);
+    // printf("speed: read8 %08x %08x\n", addr);
 
     switch (addr) {
         case 0x002e: return ps2_eeprom_read(speed->eeprom);
@@ -68,7 +73,7 @@ uint64_t ps2_speed_read16(struct ps2_speed* speed, uint32_t addr) {
         case 0x0064: return speed->if_ctrl;
     }
 
-    printf("speed: read16 %08x\n", addr); // exit(1);
+    // printf("speed: read16 %08x\n", addr); // exit(1);
 
     return 0;
 }
@@ -79,14 +84,14 @@ uint64_t ps2_speed_read32(struct ps2_speed* speed, uint32_t addr) {
         return ps2_flash_read32(speed->flash, addr);
     }
 
-    printf("speed: read32 %08x\n", addr); // exit(1);
+    // printf("speed: read32 %08x\n", addr); // exit(1);
 
     return 0;
 }
 void ps2_speed_write8(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
     addr &= 0xffff;
 
-    printf("speed: write8 %08x %08x\n", addr, data);
+    // printf("speed: write8 %08x %08x\n", addr, data);
 
     switch (addr) {
         case 0x002c: speed->pio_dir = data; return;
@@ -121,7 +126,7 @@ void ps2_speed_write16(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
         case 0x002a: speed->intr_mask = data; return;
     }
 
-    printf("speed: write16 %08x %08x\n", addr, data); // exit(1);
+    // printf("speed: write16 %08x %08x\n", addr, data); // exit(1);
 }
 void ps2_speed_write32(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
     addr &= 0xffff;
@@ -132,7 +137,7 @@ void ps2_speed_write32(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
         return;
     }
 
-    printf("speed: write32 %08x %08x\n", addr, data); // exit(1);
+    // printf("speed: write32 %08x %08x\n", addr, data); // exit(1);
 }
 
 void ps2_speed_send_irq(struct ps2_speed* speed, uint16_t irq) {
