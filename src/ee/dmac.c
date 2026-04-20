@@ -519,6 +519,12 @@ void mfifo_write_qword(struct ps2_dmac* dmac, uint128_t q) {
     }
 }
 
+void dmac_send_vif1_read_irq(void* udata, int overshoot) {
+    struct ps2_dmac* dmac = (struct ps2_dmac*)udata;
+
+    dmac_end_transfer(dmac, DMAC_VIF1);
+}
+
 void dmac_handle_vif1_read_transfer(struct ps2_dmac* dmac) {
     // Gran Turismo 3 sends a VIF1 read with QWC=0, presumably to
     // wait until the GIF FIFO is actually full, so we shouldn't send
@@ -526,22 +532,33 @@ void dmac_handle_vif1_read_transfer(struct ps2_dmac* dmac) {
     if (dmac->channels[DMAC_VIF1].qwc == 0)
         return;
 
-    // Trash GS readback implementation, whatever...
-    uint128_t* buf = (uint128_t*)malloc(dmac->channels[DMAC_VIF1].qwc * 16);
+    // dmac->channels[DMAC_VIF1].chcr &= ~0x100;
+    // dmac->channels[DMAC_VIF1].madr = 0;
+    // dmac->channels[DMAC_VIF1].qwc = 0;
 
-    dmac->gif->readback(dmac->gif, buf, dmac->channels[DMAC_VIF1].qwc * 16);
+    fprintf(stdout, "dmac: Handling VIF1 read transfer with QWC=%d MADR=%08x\n", dmac->channels[DMAC_VIF1].qwc, dmac->channels[DMAC_VIF1].madr);
 
-    for (int i = 0; i < dmac->channels[DMAC_VIF1].qwc; i++) {
-        uint128_t q = buf[i];
+    // // Trash GS readback implementation, whatever...
+    // uint128_t* buf = (uint128_t*)malloc(dmac->channels[DMAC_VIF1].qwc * 16);
 
-        dmac_write_qword(dmac, dmac->channels[DMAC_VIF1].madr, 0, q);
+    // dmac->gif->readback(dmac->gif, buf, dmac->channels[DMAC_VIF1].qwc * 16);
 
-        dmac->channels[DMAC_VIF1].madr += 16;
-    }
+    // for (int i = 0; i < dmac->channels[DMAC_VIF1].qwc; i++) {
+    //     uint128_t q = { 0 };
 
-    free(buf);
+    //     dmac_write_qword(dmac, dmac->channels[DMAC_VIF1].madr, 0, q);
 
-    dmac_end_transfer(dmac, DMAC_VIF1);
+    //     dmac->channels[DMAC_VIF1].madr += 16;
+    // }
+
+    // struct sched_event event;
+
+    // event.name = "vif1_read_transfer_end";
+    // event.callback = dmac_send_vif1_read_irq;
+    // event.cycles = dmac->channels[DMAC_VIF1].qwc * 2;
+    // event.udata = dmac;
+
+    // sched_schedule(dmac->sched, event);
 }
 
 int dmac_transfer_vif1_word(struct ps2_dmac* dmac) {
