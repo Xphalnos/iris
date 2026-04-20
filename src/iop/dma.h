@@ -35,6 +35,12 @@ extern "C" {
 #define IOP_DMA_SIO2_IN  11
 #define IOP_DMA_SIO2_OUT 12
 
+// Retail behavior
+#define IOP_DMA_DEV9_ATA 0
+
+// System 147/148 NAND chip
+#define IOP_DMA_DEV9_NAND 1
+
 struct iop_dma_channel {
     uint32_t madr;
     uint32_t bcr;
@@ -64,17 +70,21 @@ struct ps2_iop_dma {
     uint32_t dmacen;
     uint32_t dmacinten;
 
+    int dev9_mode;
+
     struct ps2_iop_intc* intc;
     struct ps2_sif* sif;
     struct ps2_cdvd* cdvd;
     struct ps2_dmac* ee_dma;
     struct ps2_sio2* sio2;
     struct ps2_spu2* spu2;
+    struct ps2_speed* speed;
     struct sched_state* sched;
 };
 
 struct ps2_iop_dma* ps2_iop_dma_create(void);
-void ps2_iop_dma_init(struct ps2_iop_dma* dma, struct ps2_iop_intc* intc, struct ps2_sif* sif, struct ps2_cdvd* cdvd, struct ps2_dmac* ee_dma, struct ps2_sio2* sio2, struct ps2_spu2* spu, struct sched_state* sched, struct iop_bus* bus);
+void ps2_iop_dma_init(struct ps2_iop_dma* dma, struct ps2_iop_intc* intc, struct ps2_sif* sif, struct ps2_cdvd* cdvd, struct ps2_dmac* ee_dma, struct ps2_sio2* sio2, struct ps2_spu2* spu, struct ps2_speed* speed, struct sched_state* sched, struct iop_bus* bus);
+void ps2_iop_dma_set_dev9_mode(struct ps2_iop_dma* dma, int mode);
 void ps2_iop_dma_destroy(struct ps2_iop_dma* dma);
 uint64_t ps2_iop_dma_read16(struct ps2_iop_dma* dma, uint32_t addr);
 void ps2_iop_dma_write16(struct ps2_iop_dma* dma, uint32_t addr, uint64_t data);

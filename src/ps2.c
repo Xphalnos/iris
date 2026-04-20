@@ -96,7 +96,7 @@ void ps2_init(struct ps2_state* ps2) {
     ps2_intc_init(ps2->ee_intc, ps2->ee, ps2->sched);
     ps2_ee_timers_init(ps2->ee_timers, ps2->ee_intc, ps2->sched);
     ps2_ram_init(ps2->iop_ram, RAM_SIZE_2MB);
-    ps2_iop_dma_init(ps2->iop_dma, ps2->iop_intc, ps2->sif, ps2->cdvd, ps2->ee_dma, ps2->sio2, ps2->spu2, ps2->sched, ps2->iop_bus);
+    ps2_iop_dma_init(ps2->iop_dma, ps2->iop_intc, ps2->sif, ps2->cdvd, ps2->ee_dma, ps2->sio2, ps2->spu2, ps2->speed, ps2->sched, ps2->iop_bus);
     ps2_ram_init(ps2->iop_spr, RAM_SIZE_1KB);
     ps2_iop_intc_init(ps2->iop_intc, ps2->iop);
     ps2_iop_timers_init(ps2->iop_timers, ps2->iop_intc, ps2->sched);
@@ -152,6 +152,8 @@ void ps2_init(struct ps2_state* ps2) {
     ee_bus_init_dev9(ps2->ee_bus, ps2->dev9);
     ee_bus_init_speed(ps2->ee_bus, ps2->speed);
     ee_bus_init_ram(ps2->ee_bus, ps2->ee_ram);
+
+    ps2_iop_dma_set_dev9_mode(ps2->iop_dma, IOP_DMA_DEV9_ATA);
 
     ps2_ipu_reset(ps2->ipu);
 
@@ -270,7 +272,7 @@ void ps2_reset(struct ps2_state* ps2) {
     ps2_vif_init(ps2->vif1, 1, ps2->vu1, ps2->gif, ps2->ee_intc, ps2->ee_dma, ps2->sched, ps2->ee_bus);
     ps2_intc_init(ps2->ee_intc, ps2->ee, ps2->sched);
     ps2_ee_timers_init(ps2->ee_timers, ps2->ee_intc, ps2->sched);
-    ps2_iop_dma_init(ps2->iop_dma, ps2->iop_intc, ps2->sif, ps2->cdvd, ps2->ee_dma, ps2->sio2, ps2->spu2, ps2->sched, ps2->iop_bus);
+    ps2_iop_dma_init(ps2->iop_dma, ps2->iop_intc, ps2->sif, ps2->cdvd, ps2->ee_dma, ps2->sio2, ps2->spu2, ps2->speed, ps2->sched, ps2->iop_bus);
     ps2_iop_intc_init(ps2->iop_intc, ps2->iop);
     ps2_iop_timers_init(ps2->iop_timers, ps2->iop_intc, ps2->sched);
     ps2_spu2_init(ps2->spu2, ps2->iop_dma, ps2->iop_intc, ps2->sched);
@@ -448,6 +450,8 @@ void ps2_destroy(struct ps2_state* ps2) {
 void ps2_set_system(struct ps2_state* ps2, int system) {
     int ee_ram_size, iop_ram_size, mechacon_model;
 
+    ps2_iop_dma_set_dev9_mode(ps2->iop_dma, IOP_DMA_DEV9_ATA);
+
     // Destroy optional hardware
     if (ps2->s14x_nand) { s14x_nand_destroy(ps2->s14x_nand); ps2->s14x_nand = NULL; }
     if (ps2->s14x_syscon) { s14x_syscon_destroy(ps2->s14x_syscon); ps2->s14x_syscon = NULL; }
@@ -505,39 +509,9 @@ void ps2_set_system(struct ps2_state* ps2, int system) {
             mechacon_model = CDVD_MECHACON_DRAGON;
         } break;
 
-        case PS2_SYSTEM_NAMCO_S147: {
-            ee_ram_size = RAM_SIZE_32MB;
-            iop_ram_size = RAM_SIZE_2MB;
-
-            // This board actually has no MechaCon
-            mechacon_model = CDVD_MECHACON_DRAGON;
-
-            // Wire up System 147/148 hardware
-            ps2->s14x_nand = s14x_nand_create();
-            ps2->s14x_syscon = s14x_syscon_create();
-            ps2->s14x_sram = s14x_sram_create();
-            ps2->s14x_link = s14x_link_create();
-            ps2->s14x_ioboard = s14x_ioboard_create();
-            ps2->s14x_aiboard = s14x_aiboard_create();
-
-            s14x_nand_init(ps2->s14x_nand);
-            s14x_syscon_init(ps2->s14x_syscon);
-            s14x_sram_init(ps2->s14x_sram, &ps2->s14x_syscon->sram_write_flag);
-            s14x_link_init(ps2->s14x_link, ps2->iop_intc, ps2->sched);
-            s14x_ioboard_init(ps2->s14x_ioboard, 0);
-            s14x_aiboard_init(ps2->s14x_aiboard);
-
-            iop_bus_init_s14x_nand(ps2->iop_bus, ps2->s14x_nand);
-            iop_bus_init_s14x_syscon(ps2->iop_bus, ps2->s14x_syscon);
-            iop_bus_init_s14x_sram(ps2->iop_bus, ps2->s14x_sram);
-            iop_bus_init_s14x_link(ps2->iop_bus, ps2->s14x_link);
-
-            s14x_link_register_node(ps2->s14x_link, 2, s14x_ioboard_handle_packet, ps2->s14x_ioboard);
-            s14x_link_register_node(ps2->s14x_link, 3, s14x_aiboard_handle_packet, ps2->s14x_aiboard);
-        } break;
-
+        case PS2_SYSTEM_NAMCO_S147:
         case PS2_SYSTEM_NAMCO_S148: {
-            ee_ram_size = RAM_SIZE_64MB;
+            ee_ram_size = system == PS2_SYSTEM_NAMCO_S148 ? RAM_SIZE_64MB : RAM_SIZE_32MB;
             iop_ram_size = RAM_SIZE_2MB;
 
             // This board actually has no MechaCon
@@ -565,6 +539,8 @@ void ps2_set_system(struct ps2_state* ps2, int system) {
 
             s14x_link_register_node(ps2->s14x_link, 2, s14x_ioboard_handle_packet, ps2->s14x_ioboard);
             s14x_link_register_node(ps2->s14x_link, 3, s14x_aiboard_handle_packet, ps2->s14x_aiboard);
+
+            ps2_iop_dma_set_dev9_mode(ps2->iop_dma, IOP_DMA_DEV9_NAND);
         } break;
 
         case PS2_SYSTEM_NAMCO_S246: {
