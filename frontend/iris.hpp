@@ -509,6 +509,7 @@ struct instance {
     bool show_symbols = false;
     bool show_threads = false;
     bool show_memory_card_tool = false;
+    bool show_hdd_tool = false;
     bool show_imgui_demo = false;
     bool show_vu_disassembler = false;
     bool show_overlay = false;
@@ -829,6 +830,7 @@ void show_symbols(iris::instance* iris);
 void show_threads(iris::instance* iris);
 void show_overlay(iris::instance* iris);
 void show_memory_card_tool(iris::instance* iris);
+void show_hdd_tool(iris::instance* iris);
 void show_bios_setting_window(iris::instance* iris);
 void show_memory_search(iris::instance* iris);
 void show_timers(iris::instance* iris);

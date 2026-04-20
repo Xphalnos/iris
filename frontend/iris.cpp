@@ -304,6 +304,7 @@ void update_window(iris::instance* iris) {
     if (iris->show_sysmem_logs) show_sysmem_logs(iris);
     if (iris->show_memory_card_tool) show_memory_card_tool(iris);
     if (iris->show_memory_search) show_memory_search(iris);
+    if (iris->show_hdd_tool) show_hdd_tool(iris);
     // if (iris->show_gamelist) show_gamelist(iris);
     if (iris->show_imgui_demo) ShowDemoWindow(&iris->show_imgui_demo);
     if (iris->show_bios_setting_window) show_bios_setting_window(iris);

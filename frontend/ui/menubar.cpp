@@ -487,6 +487,10 @@ void show_main_menubar(iris::instance* iris) {
                 iris->show_memory_card_tool = true;
             }
 
+            if (MenuItem(ICON_MS_HARD_DRIVE " HDD tool")) {
+                iris->show_hdd_tool = true;
+            }
+
             ImGui::EndMenu();
         }
         if (BeginMenu("Debug")) {

@@ -107,6 +107,7 @@ target_sources(iris PRIVATE
     frontend/ui/control.cpp
     frontend/ui/dma.cpp
     frontend/ui/gs.cpp
+    frontend/ui/hdd_tool.cpp
     frontend/ui/intc.cpp
     frontend/ui/logs.cpp
     frontend/ui/memory.cpp
