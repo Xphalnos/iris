@@ -2,7 +2,9 @@
 #include <stdio.h>
 
 #include "ata.h"
-#include "isif.h"
+
+#include "shared/ata/isif.h"
+#include "shared/ata/raw.h"
 
 struct ps2_ata* ps2_ata_create(void) {
     return malloc(sizeof(struct ps2_ata));
@@ -27,6 +29,7 @@ const char* ata_get_register_name(uint32_t addr, int rw) {
 void ata_create_identify(uint8_t* buf, uint64_t sectors);
 
 void ata_init_security_data(struct ps2_ata* ata) {
+    // Note: Taken from PCSX2
     memcpy(ata->sce_security_data, "Sony Computer Entertainment Inc.", 32); // Always this magic header.
     memcpy(ata->sce_security_data + 0x20, "SCPH-20401", 10); // sometimes this matches HDD model, the rest 6 bytes filles with zeroes, or sometimes with spaces
     memcpy(ata->sce_security_data + 0x30, " 120", 4); // or " 120" for PSX DESR, reference for ps2 area size. The rest bytes filled with zeroes
@@ -62,45 +65,6 @@ void ps2_ata_init(struct ps2_ata* ata, struct ps2_speed* speed) {
     ata->sector = 1;
 
     ata->status = ATA_STAT_READY | ATA_STAT_SEEK;
-
-    // 40 GiB
-    const uint64_t size = 0xa00000000ull;
-    const uint64_t sectors = size / ATA_SECTOR_SIZE;
-
-    ata->isif = isif_open("hdd.isif");
-
-    if (!ata->isif) {
-        printf("ata: Initializing ATA device with %lu sectors (%lu GB)\n", sectors, size / (1000 * 1000 * 1000));
-
-        ata_create_identify(ata->identify, sectors);
-
-        if (isif_create_image("hdd.isif", sectors, 512, ISIF_BLOCK_MODE_UNCOMPRESSED_64BIT, 0, ata->identify, ATA_SECTOR_SIZE)) {
-            fprintf(stderr, "ata: Failed to create HDD image\n");
-
-            return;
-        }
-
-        ata->isif = isif_open("hdd.isif");
-
-        printf("isif:\nversion: %d\nblock count: %lu\nblock size: %u\nblock mode: %u\nblock compression: %u\ntotal size: %08x%08x\nallocated size: %lu\n",
-            isif_get_version(ata->isif),
-            isif_get_block_count(ata->isif),
-            isif_get_block_size(ata->isif),
-            isif_get_block_mode(ata->isif),
-            isif_get_block_compression(ata->isif),
-            (uint32_t)(isif_get_total_size(ata->isif) >> 32),
-            (uint32_t)(isif_get_total_size(ata->isif) & 0xFFFFFFFF),
-            isif_get_allocated_size(ata->isif)
-        );
-    }
-
-    if (!ata->isif) {
-        fprintf(stderr, "ata: Failed to open HDD image\n");
-
-        return;
-    }
-
-    isif_read_extension(ata->isif, ata->identify);
 
     ata_init_security_data(ata);
 }
@@ -199,17 +163,48 @@ void ata_create_identify(uint8_t* buf, uint64_t sectors) {
 }
 
 int ps2_ata_load(struct ps2_ata* ata, const char* path) {
-    // To-do: Load HDD image
+    struct isif_state* isif = isif_open(path);
 
-    // A standard 40GB disk would have 7812500 sectors
-    // ata_create_identify(ata->identify, 7812500);
+    if (!isif) {
+        struct raw_state* raw = raw_open(path);
+
+        if (!raw) {
+            fprintf(stderr, "ata: Failed to open HDD image\n");
+
+            return 0;
+        }
+
+        ata->hdd.udata = (void*)raw;
+
+        ata->hdd.read_sector = ata_raw_read_sector;
+        ata->hdd.write_sector = ata_raw_write_sector;
+        ata->hdd.get_identify = ata_raw_get_identify;
+        ata->hdd.get_sector_count = ata_raw_get_sector_count;
+        ata->hdd.close = ata_raw_close;
+    } else {
+        ata->hdd.udata = (void*)isif;
+
+        ata->hdd.read_sector = ata_isif_read_sector;
+        ata->hdd.write_sector = ata_isif_write_sector;
+        ata->hdd.get_identify = ata_isif_get_identify;
+        ata->hdd.get_sector_count = ata_isif_get_sector_count;
+        ata->hdd.close = ata_isif_close;
+    }
+
+    if (ata->hdd.get_identify(ata->hdd.udata, ata->identify) == 0) {
+        fprintf(stderr, "ata: Failed to get identify data\n");
+
+        // Create new identify data based on the size of the image
+        // if the image doesn't provide valid identify data.
+        ata_create_identify(ata->identify, ata->hdd.get_sector_count(ata->hdd.udata));
+    }
 
     return 1;
 }
 
 void ps2_ata_destroy(struct ps2_ata* ata) {
-    if (ata->isif) {
-        isif_close(ata->isif);
+    if (ata->hdd.close) {
+        ata->hdd.close(ata->hdd.udata);
     }
 
     free(ata);
@@ -236,7 +231,7 @@ void ata_handle_data_overflow(struct ps2_ata* ata) {
         } break;
 
         case ATA_C_WRITE_DMA: {
-            isif_write_block(ata->isif, ata->pending_lba++, ata->buf);
+            ata->hdd.write_sector(ata->hdd.udata, ata->pending_lba++, ata->buf);
 
             ata->pending_sectors--;
 
@@ -256,7 +251,7 @@ void ata_handle_data_overflow(struct ps2_ata* ata) {
                 return;
             }
 
-            isif_read_block(ata->isif, ata->pending_lba++, ata->buf);
+            ata->hdd.read_sector(ata->hdd.udata, ata->pending_lba++, ata->buf);
 
             ata->buf_index = 0;
             ata->buf_size = 512;
@@ -294,7 +289,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
             ata->buf_size = 512;
             ata->buf_index = 0;
 
-            isif_read_block(ata->isif, ata->pending_lba++, ata->buf);
+            ata->hdd.read_sector(ata->hdd.udata, ata->pending_lba++, ata->buf);
         } break;
 
         case ATA_C_WRITE_DMA: {
@@ -320,7 +315,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
             ata->buf_size = 512;
             ata->buf_index = 0;
 
-            isif_read_block(ata->isif, ata->pending_lba++, ata->buf);
+            ata->hdd.read_sector(ata->hdd.udata, ata->pending_lba++, ata->buf);
         } break;
 
         case ATA_C_IDLE: {
@@ -394,6 +389,8 @@ void ata_handle_data_write(struct ps2_ata* ata, uint16_t value) {
 
 uint16_t ata_read(struct ps2_ata* ata, uint32_t addr) {
     // printf("ata: Read %s (drive %d, status %02x, control %02x)\n", ata_get_register_name(addr, 0), ata_get_drive(ata), ata->status, ata->control);
+    if (!ata->hdd.udata)
+        return 0;
 
     // Only allow reads from the SELECT reg when slave is selected
     if (ata_get_drive(ata) && addr != 0x4c) return 0;
@@ -426,6 +423,9 @@ uint16_t ata_read(struct ps2_ata* ata, uint32_t addr) {
 }
 
 void ata_write(struct ps2_ata* ata, uint32_t addr, uint64_t data) {
+    if (!ata->hdd.udata)
+        return;
+
     // printf("ata: Write %s %08lx (drive %d)\n", ata_get_register_name(addr, 1), data, ata_get_drive(ata));
 
     if (ata_get_drive(ata) && (addr != 0x4c && addr != 0x5c))

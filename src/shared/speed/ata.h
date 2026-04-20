@@ -32,7 +32,6 @@ extern "C" {
 #include <stdio.h>
 
 #include "../speed.h"
-#include "isif.h"
 
 #define ATA_SECTOR_SIZE 512
 #define ATA_PIO_MODE 4
@@ -316,8 +315,18 @@ struct __attribute__((packed)) ata_identify {
     uint8_t checksum;
 };
 
+struct ata_hdd {
+    void (*write_sector)(void* udata, uint64_t lba, const uint8_t* data);
+    void (*read_sector)(void* udata, uint64_t lba, uint8_t* data);
+    int (*get_identify)(void* udata, uint8_t* buf);
+    void (*close)(void* udata);
+    uint64_t (*get_sector_count)(void* udata);
+
+    void* udata;
+};
+
 struct ps2_ata {
-    struct isif_state* isif;
+    struct ata_hdd hdd;
 
     uint16_t data;
     uint16_t error;

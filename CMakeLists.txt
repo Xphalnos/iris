@@ -129,7 +129,6 @@ target_sources(iris PRIVATE
     src/ps2.c
     src/ps2_elf.c
     src/ps2_iso9660.c
-    src/isif.c
     src/queue.c
     src/rom.c
     src/md5.c
@@ -200,6 +199,8 @@ target_sources(iris PRIVATE
     src/shared/speed/ata.c
     src/shared/speed/eeprom.c
     src/shared/speed/flash.c
+    src/shared/ata/raw.c
+    src/shared/ata/isif.c
     src/s14x/nand.c
     src/s14x/syscon.c
     src/s14x/sram.c
