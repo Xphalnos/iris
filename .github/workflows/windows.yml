@@ -1,5 +1,8 @@
 name: Windows CI
 
+env:
+  LLVM_VER: 22
+
 on:
   push:
   pull_request:
@@ -13,6 +16,11 @@ jobs:
       with:
         submodules: 'recursive'
         fetch-depth: 0
+
+    - name: Install LLVM
+      shell: pwsh
+      run: |
+        choco install llvm --version=${{env.LLVM_VER}}.1.0 -y --force --no-progress
 
     - name: Configure build for amd64
       uses: ilammy/msvc-dev-cmd@v1

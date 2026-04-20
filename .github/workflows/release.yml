@@ -1,5 +1,8 @@
 name: Release CI
 
+env:
+  LLVM_VER: 22
+
 on:
   push:
     tags:
@@ -14,6 +17,11 @@ jobs:
       with:
         submodules: 'recursive'
         fetch-depth: 0
+
+    - name: Install LLVM
+      shell: pwsh
+      run: |
+        choco install llvm --version=${{env.LLVM_VER}}.1.0 -y --force --no-progress
 
     - name: Configure build for amd64
       uses: ilammy/msvc-dev-cmd@v1
@@ -56,17 +64,24 @@ jobs:
     - name: Install deps
       run: |
         sudo add-apt-repository universe
-        sudo apt-get install clang-20 git make \
+        sudo apt update
+        sudo apt-get install git make \
         pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
         libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
         libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
         libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
         libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libfuse2t64
 
+    - name: Install LLVM
+      run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh ${{env.LLVM_VER}}
+
     - name: Build and pack Iris
       run: |
         git fetch --all --tags
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++-20
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-${{env.LLVM_VER}} -DCMAKE_CXX_COMPILER=clang++-${{env.LLVM_VER}}
         cmake --build build
         sudo cmake --install build
         mkdir dist
@@ -121,10 +136,17 @@ jobs:
         cache: true
         stripdown: true
 
+    - name: Install LLVM
+      run: |
+          brew install llvm@${{env.LLVM_VER}}
+
     - name: Build and pack Iris
       run: |
         git fetch --all --tags
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        export PATH="/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/bin:$PATH"
+        export CPPFLAGS="-I/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/include"
+        export LDFLAGS="-L/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/lib"
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{env.LLVM_VER}})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{env.LLVM_VER}})/bin/clang++
         cmake --build build
         sudo cmake --install build
 

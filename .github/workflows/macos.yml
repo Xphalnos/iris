@@ -1,5 +1,8 @@
 name: macOS CI
 
+env:
+  LLVM_VER: 22
+
 on:
   push:
   pull_request:
@@ -22,10 +25,17 @@ jobs:
         cache: true
         stripdown: true
 
+    - name: Install LLVM
+      run: |
+          brew install llvm@${{env.LLVM_VER}}
+
     - name: Build and pack Iris
       run: |
         git fetch --all --tags
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        export PATH="/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/bin:$PATH"
+        export CPPFLAGS="-I/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/include"
+        export LDFLAGS="-L/opt/homebrew/opt/llvm@${{env.LLVM_VER}}/lib"
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(brew --prefix llvm@${{env.LLVM_VER}})/bin/clang -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@${{env.LLVM_VER}})/bin/clang++
         cmake --build build
         sudo cmake --install build
         mkdir -p ./build/dist
