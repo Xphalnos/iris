@@ -32,11 +32,21 @@ extern "C" {
 #include <stdio.h>
 
 #include "../speed.h"
+#include "isif.h"
 
 #define ATA_SECTOR_SIZE 512
 #define ATA_PIO_MODE 4
 #define ATA_NUM_HEADS 16
 #define ATA_SECTORS_PER_TRACK 63
+
+#define ATA_STAT_ERR   0x01
+#define ATA_STAT_INDEX 0x02
+#define ATA_STAT_CORR  0x04
+#define ATA_STAT_DRQ   0x08
+#define ATA_STAT_SEEK  0x10
+#define ATA_STAT_WRERR 0x20
+#define ATA_STAT_READY 0x40
+#define ATA_STAT_BUSY  0x80
 
 // Sony ATA commands
 enum {
@@ -307,6 +317,8 @@ struct __attribute__((packed)) ata_identify {
 };
 
 struct ps2_ata {
+    struct isif_state* isif;
+
     uint16_t data;
     uint16_t error;
     uint16_t feature;
@@ -323,7 +335,11 @@ struct ps2_ata {
     uint32_t buf_index;
     uint32_t buf_size;
 
+    uint64_t pending_sectors;
+    uint64_t pending_lba;
+
     uint8_t identify[ATA_SECTOR_SIZE];
+    uint8_t sce_security_data[512];
 
     struct ps2_speed* speed;
 };
@@ -336,6 +352,8 @@ uint64_t ps2_ata_read16(struct ps2_ata* ata, uint32_t addr);
 uint64_t ps2_ata_read32(struct ps2_ata* ata, uint32_t addr);
 void ps2_ata_write16(struct ps2_ata* ata, uint32_t addr, uint64_t data);
 void ps2_ata_write32(struct ps2_ata* ata, uint32_t addr, uint64_t data);
+uint16_t ata_read(struct ps2_ata* ata, uint32_t addr);
+void ata_write(struct ps2_ata* ata, uint32_t addr, uint64_t data);
 
 #ifdef __cplusplus
 }
