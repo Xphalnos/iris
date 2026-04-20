@@ -129,6 +129,7 @@ target_sources(iris PRIVATE
     src/ps2.c
     src/ps2_elf.c
     src/ps2_iso9660.c
+    src/isif.c
     src/queue.c
     src/rom.c
     src/md5.c
