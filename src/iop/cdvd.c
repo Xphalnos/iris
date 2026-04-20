@@ -262,19 +262,21 @@ static inline void cdvd_s_write_nvram(struct ps2_cdvd* cdvd) {
 static inline void cdvd_s_read_ilink_id(struct ps2_cdvd* cdvd) {
     cdvd_init_s_fifo(cdvd, 9);
 
-    // uint8_t id[9] = {
-    //     0x00, 0xac, 0xff, 0xff,
-    //     0xff, 0xff, 0xb9, 0x86,
-    //     0x00
-    // };
+    // fprintf(stdout, "cdvd: read_ilink_id\n");
 
-    // for (int i = 0; i < 9; i++) {
-    //     cdvd->s_fifo[i] = id[i];
-    // }
+    uint8_t id[9] = {
+        0x00, 0xac, 0xff, 0xff,
+        0xff, 0xff, 0xb9, 0x86,
+        0x00
+    };
 
-    int offset = cdvd->layout.ilink_id_offset;
+    for (int i = 0; i < 9; i++) {
+        cdvd->s_fifo[i] = id[i];
+    }
 
-    memcpy(&cdvd->s_fifo[1], &cdvd->nvram[offset], 8);
+    // int offset = cdvd->layout.ilink_id_offset;
+
+    // memcpy(&cdvd->s_fifo[1], &cdvd->nvram[offset], 8);
 }
 static inline void cdvd_s_ctrl_audio_digital_out(struct ps2_cdvd* cdvd) {
     cdvd_init_s_fifo(cdvd, 1);
