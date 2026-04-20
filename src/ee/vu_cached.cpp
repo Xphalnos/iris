@@ -390,8 +390,6 @@ void vu_xgkick(struct vu_state* vu) {
 
         // printf("tag: addr=%08x %08x %08x %08x %08x\n", addr - 1, tag.u32[3], tag.u32[2], tag.u32[1], tag.u32[0]);
 
-        ps2_gif_fifo_write(vu->gif, tag, GIF_PATH1);
-
         eop = (tag.u64[0] & 0x8000) != 0;
 
         int nloop = tag.u64[0] & 0x7fff;
@@ -401,8 +399,8 @@ void vu_xgkick(struct vu_state* vu) {
         if (!nloop)
             continue;
 
-        // if (!nregs)
-        //     nregs = 16;
+        if (!nregs)
+            nregs = 16;
 
         int qwc = 0;
 
@@ -420,6 +418,8 @@ void vu_xgkick(struct vu_state* vu) {
         }
 
         if (qwc >= 0x400) {
+            return;
+
             fprintf(stderr, "vu: Weird xgkick tag nloop=%d nregs=%d eop=%d flg=%d qwc=%d\n",
                 nloop,
                 nregs,
@@ -430,6 +430,9 @@ void vu_xgkick(struct vu_state* vu) {
 
             exit(1);
         }
+
+        ps2_gif_fifo_write(vu->gif, tag, GIF_PATH1);
+
 
         for (int i = 0; i < qwc; i++) {
             // printf("vu: %08x: %08x %08x %08x %08x\n",
@@ -2734,8 +2737,6 @@ void vu_i_xgkick(struct vu_state* vu, const struct vu_instruction* ins) {
 
         // printf("tag: addr=%08x %08x %08x %08x %08x\n", addr - 1, tag.u32[3], tag.u32[2], tag.u32[1], tag.u32[0]);
 
-        ps2_gif_fifo_write(vu->gif, tag, GIF_PATH1);
-
         eop = (tag.u64[0] & 0x8000) != 0;
 
         int nloop = tag.u64[0] & 0x7fff;
@@ -2745,8 +2746,8 @@ void vu_i_xgkick(struct vu_state* vu, const struct vu_instruction* ins) {
         if (!nloop)
             continue;
 
-        // if (!nregs)
-        //     nregs = 16;
+        if (!nregs)
+            nregs = 16;
 
         int qwc = 0;
 
@@ -2764,6 +2765,8 @@ void vu_i_xgkick(struct vu_state* vu, const struct vu_instruction* ins) {
         }
 
         if (qwc >= 0x400) {
+            return;
+
             fprintf(stderr, "vu: Weird xgkick tag nloop=%d nregs=%d eop=%d flg=%d qwc=%d\n",
                 nloop,
                 nregs,
@@ -2774,6 +2777,8 @@ void vu_i_xgkick(struct vu_state* vu, const struct vu_instruction* ins) {
 
             exit(1);
         }
+
+        ps2_gif_fifo_write(vu->gif, tag, GIF_PATH1);
 
         for (int i = 0; i < qwc; i++) {
             // printf("vu: %08x: %08x %08x %08x %08x\n",
