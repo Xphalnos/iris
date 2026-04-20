@@ -345,10 +345,8 @@ struct mcd_state* mcd_attach(struct ps2_sio2* sio2, int port, const char* path) 
     if (!file)
         return NULL;
 
-    struct mcd_state* mcd = malloc(sizeof(struct mcd_state));
+    struct mcd_state* mcd = calloc(1, sizeof(struct mcd_state));
     struct sio2_device dev;
-
-    memset(mcd, 0, sizeof(struct mcd_state));
 
     // Get memcard size
     fseek(file, 0, SEEK_END);
