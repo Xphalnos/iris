@@ -923,6 +923,7 @@ void show_paths_settings(iris::instance* iris) {
     static char dvd_buf[512];
     static char rom2_buf[512];
     static char nvram_buf[512];
+    static char hdd_buf[512];
     static char flash_buf[512];
 
     Text("BIOS (rom0)");
@@ -937,6 +938,7 @@ void show_paths_settings(iris::instance* iris) {
     const char* rom1_hint = iris->rom1_path.size() ? iris->rom1_path.c_str() : "Not configured";
     const char* rom2_hint = iris->rom2_path.size() ? iris->rom2_path.c_str() : "Not configured";
     const char* nvram_hint = iris->nvram_path.size() ? iris->nvram_path.c_str() : "Not configured";
+    const char* hdd_hint = iris->hdd_path.size() ? iris->hdd_path.c_str() : "Not configured";
     const char* flash_hint = iris->flash_path.size() ? iris->flash_path.c_str() : "Not configured";
 
     SetNextItemWidth(300);
@@ -1121,6 +1123,35 @@ void show_paths_settings(iris::instance* iris) {
 
     Separator();
 
+    Text("Hard Disk Drive (hdd0)");
+
+    SetNextItemWidth(300);
+    InputTextWithHint("##hdd", hdd_hint, hdd_buf, 512, ImGuiInputTextFlags_EscapeClearsAll);
+    SameLine();
+
+    if (Button(ICON_MS_FOLDER "##hdd")) {
+        audio::mute(iris);
+
+        auto f = pfd::open_file("Select HDD image file", "", {
+            "HDD images (*.isif; *.raw; *.bin)", "*.isif *.raw *.bin",
+            "All Files (*.*)", "*"
+        });
+
+        while (!f.ready());
+
+        audio::unmute(iris);
+
+        if (f.result().size()) {
+            strncpy(hdd_buf, f.result().at(0).c_str(), 512);
+        }
+    } SameLine();
+
+    if (Button(ICON_MS_CLEAR "##hdd")) {
+        iris->hdd_path = "";
+
+        memset(hdd_buf, 0, 512);
+    }
+
     Text("Flash memory (xfrom)");
 
     SetNextItemWidth(300);
@@ -1157,12 +1188,14 @@ void show_paths_settings(iris::instance* iris) {
         std::string rom2_path = rom2_buf;
         std::string flash_path = flash_buf;
         std::string nvram_path = nvram_buf;
+        std::string hdd_path = hdd_buf;
 
         if (bios_path.size()) iris->bios_path = bios_path;
         if (rom1_path.size()) iris->rom1_path = rom1_path;
         if (rom2_path.size()) iris->rom2_path = rom2_path;
         if (flash_path.size()) iris->flash_path = flash_path;
         if (nvram_path.size()) iris->nvram_path = nvram_path;
+        if (hdd_path.size()) iris->hdd_path = hdd_path;
 
         saved = 1;
     } SameLine();

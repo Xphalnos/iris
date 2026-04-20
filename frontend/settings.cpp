@@ -113,6 +113,7 @@ bool parse_toml_settings(iris::instance* iris) {
     iris->snap_path = paths["snap_path"].value_or("snap");
     iris->flash_path = paths["flash_path"].value_or("");
     iris->gcdb_path = paths["gcdb_path"].value_or("");
+    iris->hdd_path = paths["hdd_path"].value_or("");
     iris->auto_paths = paths["auto"].value_or(true);
 
     auto window = tbl["window"];
@@ -429,6 +430,7 @@ bool init(iris::instance* iris, int argc, const char* argv[]) {
 
     ps2_set_system(iris->ps2, iris->system);
     ps2_speed_load_flash(iris->ps2->speed, iris->flash_path.c_str());
+    ps2_speed_load_hdd(iris->ps2->speed, iris->hdd_path.c_str());
     ps2_speed_set_mac_address(iris->ps2->speed, iris->mac_address);
 
     return true;
@@ -565,6 +567,7 @@ void close(iris::instance* iris) {
             { "snap_path", iris->snap_path },
             { "flash_path", iris->flash_path },
             { "gcdb_path", iris->gcdb_path },
+            { "hdd_path", iris->hdd_path },
             { "auto", iris->auto_paths }
         } },
         { "recents", toml::table {

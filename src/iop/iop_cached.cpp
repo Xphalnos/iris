@@ -837,10 +837,6 @@ static inline void iop_i_syscall(struct iop_state* iop, iop_instruction& ins) {
 static inline void iop_i_break(struct iop_state* iop, iop_instruction& ins) {
     DO_PENDING_LOAD;
 
-    printf("iop: Crashed at pc=%08x next=%08x saved=%08x\n", iop->pc, iop->next_pc, iop->saved_pc);
-
-    exit(1);
-
     // iop_exception(iop, CAUSE_BP);
 }
 

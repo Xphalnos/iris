@@ -25,7 +25,6 @@ void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc) {
     // 0011 - ES2
     speed->rev1 = 0x0011;
     speed->rev8 |= 2;
-    speed->rev3 |= SPD_CAPS_ATA;
 }
 
 void ps2_speed_destroy(struct ps2_speed* speed) {
@@ -153,6 +152,16 @@ int ps2_speed_load_flash(struct ps2_speed* speed, const char* path) {
 
     if (ret) {
         speed->rev3 |= SPD_CAPS_FLASH;
+    }
+
+    return ret;
+}
+
+int ps2_speed_load_hdd(struct ps2_speed* speed, const char* path) {
+    int ret = ps2_ata_load(speed->ata, path);
+
+    if (ret) {
+        speed->rev3 |= SPD_CAPS_ATA;
     }
 
     return ret;

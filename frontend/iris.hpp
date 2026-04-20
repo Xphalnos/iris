@@ -470,6 +470,7 @@ struct instance {
     std::string flash_path = "";
     std::string ini_path = "";
     std::string gcdb_path = "";
+    std::string hdd_path = "";
     bool auto_paths = true;
 
     uint8_t mac_address[6] = { 0 };
