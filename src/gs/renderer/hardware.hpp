@@ -90,7 +90,7 @@ public:
     }
 
     virtual bool on_label(uint64_t payload) override {
-        return ps2_gs_write_label(m_gs, payload);;
+        return ps2_gs_write_label(m_gs, payload);
     }
 };
 

@@ -25,9 +25,7 @@ struct iso9660_state* iso9660_open(const char* path) {
     if (!file)
         return NULL;
 
-    struct iso9660_state* iso = malloc(sizeof(struct iso9660_state));
-
-    memset(iso, 0, sizeof(struct iso9660_state));
+    struct iso9660_state* iso = calloc(1, sizeof(struct iso9660_state));
 
     iso->file = file;
 

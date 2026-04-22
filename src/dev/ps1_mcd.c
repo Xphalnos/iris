@@ -158,10 +158,8 @@ struct ps1_mcd_state* ps1_mcd_attach(struct ps2_sio2* sio2, int port, const char
     if (!file)
         return NULL;
 
-    struct ps1_mcd_state* mcd = malloc(sizeof(struct ps1_mcd_state));
+    struct ps1_mcd_state* mcd = calloc(1, sizeof(struct ps1_mcd_state));
     struct sio2_device dev;
-
-    memset(mcd, 0, sizeof(struct ps1_mcd_state));
 
     mcd->file = file;
     mcd->flag = 0x08;

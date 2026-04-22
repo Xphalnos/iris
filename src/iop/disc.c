@@ -164,9 +164,7 @@ struct disc_state* disc_open(const char* path) {
     if (ext == DISC_EXT_UNSUPPORTED)
         return NULL;
 
-    struct disc_state* s = malloc(sizeof(struct disc_state));
-
-    memset(s, 0, sizeof(struct disc_state));
+    struct disc_state* s = calloc(1, sizeof(struct disc_state));
 
     s->layer2_lba = 0;
     s->ext = ext;
