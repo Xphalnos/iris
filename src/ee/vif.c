@@ -171,11 +171,7 @@ static inline void vif_handle_fifo_write(struct ps2_vif* vif, uint32_t data) {
             case VIF_CMD_MSKPATH3: {
                 // fprintf(stdout, "vif%d: MSKPATH3(%04x)\n", vif->id, data & 0xffff);
 
-                if (data & 0x8000) {
-                    vif->gif->stat |= 2;
-                } else {
-                    vif->gif->stat &= ~2;
-                }
+                ps2_gif_set_path3_mask(vif->gif, (data & 0x8000) != 0);
             } break;
             case VIF_CMD_MARK: {
                 // printf("vif%d: MARK(%04x)\n", vif->id, data & 0xffff);

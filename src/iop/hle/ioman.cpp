@@ -231,7 +231,7 @@ extern "C" int ioman_open(struct iop_state* iop, int iomanx) {
         }
     }
 
-    fclose(file);
+    if (file) fclose(file);
 
     file = fopen(absolute.string().c_str(), ioman_get_mode_string(mode));
 

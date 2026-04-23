@@ -349,7 +349,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
         default: {
             printf("ata: Unhandled command %02x\n", cmd);
 
-            exit(1);
+            // exit(1);
         } break;
     }
 }

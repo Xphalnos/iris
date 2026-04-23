@@ -51,18 +51,19 @@ struct ps2_gif {
     void (*readback)(void*, void*, size_t);
     struct queue_state* queue[3];
 
-    struct ps2_gs* gs;
-    struct vu_state* vu1;
-
     int state;
     struct gif_tag tag;
 
     // From ST(Q) to RGBA(Q)
     uint64_t q;
+
+    struct ps2_dmac* dmac;
+    struct ps2_gs* gs;
+    struct vu_state* vu1;
 };
 
 struct ps2_gif* ps2_gif_create(void);
-void ps2_gif_init(struct ps2_gif* gif, struct vu_state* vu1, struct ps2_gs* gs);
+void ps2_gif_init(struct ps2_gif* gif, struct ps2_dmac* dmac, struct vu_state* vu1, struct ps2_gs* gs);
 void ps2_gif_reset(struct ps2_gif* gif);
 void ps2_gif_destroy(struct ps2_gif* gif);
 uint64_t ps2_gif_read32(struct ps2_gif* gif, uint32_t addr);
@@ -71,6 +72,9 @@ void ps2_gif_write128(struct ps2_gif* gif, uint32_t addr, uint128_t data);
 void ps2_gif_fifo_write(struct ps2_gif* gif, uint128_t data, int path);
 uint128_t ps2_gif_fifo_read(struct ps2_gif* gif);
 void ps2_gif_set_backend(struct ps2_gif* gif, void* udata, void (*transfer)(void*, int, const void*, size_t), void (*readback)(void*, void*, size_t));
+
+void ps2_gif_set_path3_mask(struct ps2_gif* gif, int mask);
+int ps2_gif_get_path3_mask(struct ps2_gif* gif);
 
 #ifdef __cplusplus
 }
