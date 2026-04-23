@@ -88,7 +88,7 @@ void ps2_init(struct ps2_state* ps2) {
     // Initialize devices
     ps2_dmac_init(ps2->ee_dma, ps2->sif, ps2->iop_dma, ee_get_spr(ps2->ee), ps2->gif, ps2->ipu, ps2->vif0, ps2->vif1, ps2->ee, ps2->sched, ps2->ee_bus);
     ps2_ram_init(ps2->ee_ram, RAM_SIZE_32MB);
-    ps2_gif_init(ps2->gif, ps2->vu1, ps2->gs);
+    ps2_gif_init(ps2->gif, ps2->ee_dma, ps2->vu1, ps2->gs);
     ps2_vif_init(ps2->vif0, 0, ps2->vu0, ps2->gif, ps2->ee_intc, ps2->ee_dma, ps2->sched, ps2->ee_bus);
     ps2_vif_init(ps2->vif1, 1, ps2->vu1, ps2->gif, ps2->ee_intc, ps2->ee_dma, ps2->sched, ps2->ee_bus);
     ps2_gs_init(ps2->gs, ps2->ee_intc, ps2->iop_intc, ps2->ee_timers, ps2->iop_timers, ps2->sched);
@@ -179,7 +179,7 @@ void ps2_boot_file(struct ps2_state* ps2, const char* path) {
     ps2_reset(ps2);
 
     while (ee_get_pc(ps2->ee) != 0x00082000) {
-        while (ps2->ee_cycles < 16*16) {
+        while (ps2->ee_cycles < 16*64) {
             ps2->ee_cycles += ee_run_block(ps2->ee, 64);
 
             if (ee_get_pc(ps2->ee) == 0x00082000)
@@ -316,15 +316,15 @@ void ps2_reset(struct ps2_state* ps2) {
 // }
 
 void ps2_cycle(struct ps2_state* ps2) {
-    while (ps2->ee_cycles < 16*16) {
+    while (ps2->ee_cycles < 16*64) {
         uint32_t cycles = ee_run_block(ps2->ee, 128);
 
         sched_tick(ps2->sched, ps2->timescale * cycles);
 
-        ps2_ipu_run(ps2->ipu);
-
         ps2->ee_cycles += cycles;
     }
+
+    ps2_ipu_run(ps2->ipu);
 
     // The timer runs at BUSCLK speed, that is 1 BUSCLK cycle every 2 EE instructions
     ps2_ee_timers_tick_cycles(ps2->ee_timers, ps2->ee_cycles);
