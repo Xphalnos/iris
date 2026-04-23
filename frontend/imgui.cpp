@@ -70,7 +70,7 @@ constexpr unsigned int g_fragment_shader_size = sizeof(g_fragment_shader_data);
 
 #include "stb_image.h"
 
-#define VOLK_IMPLEMENTATION
+// #define VOLK_IMPLEMENTATION
 #include <volk.h>
 
 namespace iris::imgui {

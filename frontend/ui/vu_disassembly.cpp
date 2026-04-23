@@ -359,7 +359,7 @@ void show_vu_disassembler(iris::instance* iris) {
                 SetNextItemWidth(100.0f);
                 PushFont(iris->font_code);
 
-                if (InputInt("##address", (int*)&addr, 0, 0, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll));
+                InputInt("##address", (int*)&addr, 0, 0, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EscapeClearsAll);
 
                 PopFont();
 
@@ -425,7 +425,7 @@ void show_vu_disassembler(iris::instance* iris) {
                 SetNextItemWidth(100.0f);
                 PushFont(iris->font_code);
 
-                if (InputInt("##address", (int*)&addr, 0, 0, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll));
+                InputInt("##address", (int*)&addr, 0, 0, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EscapeClearsAll);
 
                 PopFont();
 

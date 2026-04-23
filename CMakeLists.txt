@@ -32,6 +32,7 @@ else()
 endif()
 
 message(STATUS "Project Version: ${GIT_VERSION_STRING}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # You can then use GIT_VERSION_STRING in your project, e.g., to generate a header file:
 # configure_file(
@@ -85,7 +86,10 @@ endif()
 
 set_property(TARGET iris PROPERTY C_STANDARD 23)
 set_property(TARGET iris PROPERTY CXX_STANDARD 23)
+
 add_definitions("-D_IRIS_VERSION=${GIT_VERSION_STRING}")
+add_definitions("-D_IRIS_OSVERSION=${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_VERSION}")
+add_definitions("-D_IRIS_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}")
 
 target_sources(iris PRIVATE
     main.cpp

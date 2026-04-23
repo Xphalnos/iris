@@ -22,7 +22,7 @@ void show_about_window(iris::instance* iris) {
         flags |= ImGuiWindowFlags_NoTitleBar;
 
     if (Begin("About", &iris->show_about_window, flags)) {
-        if (BeginChild("##iconchild", ImVec2(100.0, 220.0), ImGuiChildFlags_AutoResizeY)) {
+        if (BeginChild("##iconchild", ImVec2(100.0, 250.0), ImGuiChildFlags_AutoResizeY)) {
             Image((ImTextureID)(intptr_t)iris->iris_icon.descriptor_set, ImVec2(100.0, 100.0));
         } EndChild(); SameLine(0.0, 10.0);
 
@@ -47,6 +47,9 @@ void show_about_window(iris::instance* iris) {
             Text("Please file any issues to "); SameLine(0.0, 0.0);
             TextLinkOpenURL("our GitHub issues page", "https://github.com/allkern/iris/issues"); SameLine(0.0, 0.0);
             Text(".");
+
+            Separator();
+            Text("Built with " IRIS_COMPILER_NAME "-" IRIS_COMPILER_VERSION " on " STR(_IRIS_OSVERSION) " (" STR(_IRIS_PROCESSOR) ")");
         } EndChild();
     } End();
 }

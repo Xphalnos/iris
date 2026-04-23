@@ -103,6 +103,8 @@ void show_main_menubar(iris::instance* iris) {
                                 add_recent(iris, recent.path, RECENT_TYPE_ARCADE);
                             }
                         }
+
+                        break;
                     }
                 }
 

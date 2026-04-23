@@ -4042,7 +4042,10 @@ ee_instruction ee_decode(uint32_t opcode) {
 }
 
 void ee_optimize_block(struct ee_block* block) {
-    for (int i = 0; i < block->instructions.size(); i++) {
+    if (block->instructions.size() < 2)
+        return;
+
+    for (int i = 0; i < block->instructions.size() - 1; i++) {
         auto& a = block->instructions[i];
         auto& b = block->instructions[i+1];
  

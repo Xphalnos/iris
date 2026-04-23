@@ -250,6 +250,15 @@ uint64_t ee_bus_read32(void* udata, uint32_t addr) {
     // if (addr == 0x001D8A0C) return 0x24027FFF;
     // if (addr == 0x001051b4) return 0x240F02BC;
 
+    // // DoA (J)
+    // if (addr == 0x00290408) return 0x24060000;
+
+    // // DoA (E)
+    // if (addr == 0x002b4c44) return 0x24060000;
+
+    // DoA (U)
+    // if (addr == 0x002b06ec) return 0x24060000;
+
     void* ptr = bus->fastmem_r_table[addr >> 13];
 
     if (likely(ptr)) return *((uint32_t*)(((uint8_t*)ptr) + (addr & 0x1fff)));
