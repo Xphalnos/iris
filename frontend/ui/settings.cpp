@@ -258,7 +258,10 @@ void show_system_settings(iris::instance* iris) {
         TableSetColumnIndex(0);
         TextDisabled("Effective frequency");
         TableSetColumnIndex(1);
-        Text("%.3f MHz", 294.912f / iris->timescale);
+
+        double freq = 294.9121 / (double)iris->timescale;
+
+        Text("%.3f MHz", freq);
 
         EndTable();
     }

@@ -79,6 +79,8 @@ uint64_t s14x_nand_read(struct s14x_nand* nand, uint32_t addr) {
             // printf("s14x_nand: Unhandled register read %02x\n", addr);
         } break;
     }
+
+    return 0;
 }
 
 void s14x_nand_write(struct s14x_nand* nand, uint32_t addr, uint64_t data) {

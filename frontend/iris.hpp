@@ -69,7 +69,7 @@ namespace iris {
 #define IRIS_PRESENT_MODE_VSYNC 2
 #define IRIS_PRESENT_MODE_UNCAPPED 3
 
-class instance;
+struct instance;
 
 // class widget {
 // public:

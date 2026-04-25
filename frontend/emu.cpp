@@ -106,8 +106,8 @@ bool load_arcade(iris::instance* iris, std::string path) {
                 return false;
             }
 
-            ps2_set_system(iris->ps2, system);
             ps2_load_bios(iris->ps2, bios_path.string().c_str());
+            ps2_set_system(iris->ps2, system);
             s14x_nand_load(iris->ps2->s14x_nand, nand_path.string().c_str());
             s14x_sram_load(iris->ps2->s14x_sram, sram_path.string().c_str());
 

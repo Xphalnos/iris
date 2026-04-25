@@ -179,17 +179,15 @@ void update_window(iris::instance* iris) {
     using namespace ImGui;
 
     // Limit FPS to 60 only when paused
-    if (iris->limit_fps && iris->pause)
+    if (iris->pause)
         sleep_limiter(iris);
 
     update_title(iris);
     update_time(iris);
 
-    ImGuiIO& io = ImGui::GetIO();
-
     // Start the Dear ImGui frame
     if (SDL_GetWindowFlags(iris->window) & SDL_WINDOW_MINIMIZED) {
-        SDL_Delay(1);
+        // SDL_Delay(1);
 
         return;
     }
@@ -200,22 +198,27 @@ void update_window(iris::instance* iris) {
     SDL_GetWindowSize(iris->window, &width, &height);
 
     if (width > 0 && height > 0 && (iris->swapchain_rebuild || iris->main_window_data.Width != width || iris->main_window_data.Height != height)) {
-        ImGui_ImplVulkan_SetMinImageCount(iris->min_image_count);
-    
-        ImGui_ImplVulkanH_CreateOrResizeWindow(
-            iris->instance,
-            iris->physical_device,
-            iris->device,
-            &iris->main_window_data,
-            iris->queue_family,
-            nullptr,
-            width, height,
-            iris->min_image_count,
-            0
-        );
+        VkSurfaceCapabilitiesKHR cap;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(iris->physical_device, iris->main_window_data.Surface, &cap);
 
-        iris->main_window_data.FrameIndex = 0;
-        iris->swapchain_rebuild = false;
+        if (cap.currentExtent.width != 0 && cap.currentExtent.height != 0) {
+            ImGui_ImplVulkan_SetMinImageCount(iris->min_image_count);
+        
+            ImGui_ImplVulkanH_CreateOrResizeWindow(
+                iris->instance,
+                iris->physical_device,
+                iris->device,
+                &iris->main_window_data,
+                iris->queue_family,
+                nullptr,
+                width, height,
+                iris->min_image_count,
+                0
+            );
+
+            iris->main_window_data.FrameIndex = 0;
+            iris->swapchain_rebuild = false;
+        }
     }
 
     // Start the Dear ImGui frame
@@ -314,7 +317,7 @@ void update_window(iris::instance* iris) {
     if (iris->pause) {
         ImVec2 ts = CalcTextSize(ICON_MS_PAUSE);
         ImVec2 offset = ImVec2(10.0f, 10.0f);
-        ImVec2 padding = ImVec2(0.0f, 0.0f);
+        // ImVec2 padding = ImVec2(0.0f, 0.0f);
 
         ts.x -= 1.0f;
 
@@ -478,8 +481,8 @@ SDL_AppResult update(iris::instance* iris) {
         iris->double_click_counter--;
     }
 
-    int iop_count = iris->ps2->iop->total_cycles;
-    int ee_count = iris->ps2->ee->total_cycles;
+    // int iop_count = iris->ps2->iop->total_cycles;
+    // int ee_count = iris->ps2->ee->total_cycles;
 
     if (iris->pause) {
         iris->step_out = false;

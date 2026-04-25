@@ -570,7 +570,6 @@ void render_shader_passes(iris::instance* iris, VkCommandBuffer command_buffer, 
 
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pass->get_pipeline());
 
-        VkDeviceSize offsets[] = { 0 };
         vkCmdBindIndexBuffer(command_buffer, iris->index_buffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pass->get_pipeline_layout(), 0, 1, &shader_descriptor_set, 0, nullptr);
 

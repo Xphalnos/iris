@@ -94,8 +94,16 @@ void show_hdd_tool(iris::instance* iris) {
                     EndCombo();
                 }
 
-                TextDisabled("Estimated size     "); SameLine(0.0, 0.0);
-                Text(get_file_size_string(image_format, 0xa00000000 + (0x500000000 * size_add)).c_str());
+                if (BeginTable("##effective-clock", 2, ImGuiTableFlags_SizingFixedSame)) {
+                    TableNextRow();
+
+                    TableSetColumnIndex(0);
+                    TextDisabled("Estimated size");
+                    TableSetColumnIndex(1);
+                    Text("%s", get_file_size_string(image_format, 0xa00000000 + (0x500000000 * size_add)).c_str());
+
+                    EndTable();
+                }
 
                 PushStyleVarY(ImGuiStyleVar_FramePadding, 2.0F);
                 Checkbox("Attach to PS2", &assign);

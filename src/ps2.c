@@ -262,6 +262,8 @@ int ps2_load_rom2(struct ps2_state* ps2, const char* path) {
 void ps2_reset(struct ps2_state* ps2) {
     sched_reset(ps2->sched);
 
+    int iop_dev9_mode = ps2->iop_dma->dev9_mode;
+
     ee_reset(ps2->ee);
     iop_reset(ps2->iop);
     vu_init(ps2->vu0, 0, ps2->gif, ps2->vif0, ps2->vu1);
@@ -287,6 +289,9 @@ void ps2_reset(struct ps2_state* ps2) {
     ps2_ram_reset(ps2->iop_ram);
 
     ps2_ipu_reset(ps2->ipu);
+
+    // Restore mode
+    ps2_iop_dma_set_dev9_mode(ps2->iop_dma, iop_dev9_mode);
 
     ps2->ee_cycles = 0;
 }
@@ -321,10 +326,10 @@ void ps2_cycle(struct ps2_state* ps2) {
 
         sched_tick(ps2->sched, ps2->timescale * cycles);
 
+        ps2_ipu_run(ps2->ipu);
+
         ps2->ee_cycles += cycles;
     }
-
-    ps2_ipu_run(ps2->ipu);
 
     // The timer runs at BUSCLK speed, that is 1 BUSCLK cycle every 2 EE instructions
     ps2_ee_timers_tick_cycles(ps2->ee_timers, ps2->ee_cycles);

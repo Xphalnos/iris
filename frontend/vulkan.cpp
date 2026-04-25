@@ -1017,8 +1017,6 @@ bool init(iris::instance* iris, bool enable_validation) {
     return true;
 }
 
-static int ic = 0;
-
 void cleanup(iris::instance* iris) {
     vulkan::wait_idle(iris);
 

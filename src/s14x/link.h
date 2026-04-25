@@ -189,8 +189,6 @@ struct link_node {
     void* udata;
 };
 
-static uint8_t link_calculate_checksum(struct link_packet* packet);
-
 struct s14x_link {
     uint8_t pad00;
     uint8_t comr0;
