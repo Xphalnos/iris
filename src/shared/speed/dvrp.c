@@ -52,30 +52,21 @@ void dvrp_handle_command(struct ps2_dvrp* dvrp, uint16_t cmd) {
     dvrp->cmd = cmd;
     dvrp->param_index = 0;
 
-    switch (cmd) {
-        // avioctl2_set_d_audio_sel?
-        case 0x3109: {
-            struct sched_event event;
+    struct sched_event event;
 
-            event.callback = dvrp_send_intr_cmd_ack;
-            event.udata = dvrp;
-            event.cycles = 10000;
-            event.name = "dvrp cmd ack";
+    event.callback = dvrp_send_intr_cmd_ack;
+    event.udata = dvrp;
+    event.cycles = 10000;
+    event.name = "dvrp cmd ack";
 
-            sched_schedule(dvrp->speed->sched, event);
+    sched_schedule(dvrp->speed->sched, event);
 
-            // event.callback = dvrp_send_intr_cmd_comp;
-            // event.udata = dvrp;
-            // event.cycles = 100000;
-            // event.name = "dvrp cmd comp";
-
-            // sched_schedule(dvrp->speed->sched, event);
-        } break;
-    }
+    // 210e - dvrioctl2_rec_prohibit
+    // 3109 - avioctl2_set_d_audio_sel
 }
 
 uint64_t ps2_dvrp_read(struct ps2_dvrp* dvrp, uint32_t addr) {
-    printf("dvrp: read16 %08x\n", addr);
+    // printf("dvrp: read16 %08x\n", addr);
 
     switch (addr) {
         case 0x4200: return dvrp->intr_stat;
@@ -86,6 +77,11 @@ uint64_t ps2_dvrp_read(struct ps2_dvrp* dvrp, uint32_t addr) {
         case 0x4220: return dvrp->intr_cause;
         case 0x4228: return 1; // ?
         case 0x4230: return dvrp->status;
+
+        // ??
+        case 0x4234: return 1;
+        case 0x4238: return dvrp->status;
+        case 0x423c: return dvrp->status;
     }
 
     return 0;
@@ -98,7 +94,7 @@ void dvrp_clear_speed_dvr_intr(struct ps2_dvrp* dvrp) {
 }
 
 void ps2_dvrp_write(struct ps2_dvrp* dvrp, uint32_t addr, uint64_t data) {
-    printf("dvrp: write16 %08x %08x\n", addr, data);
+    // printf("dvrp: write16 %08x %08x\n", addr, data);
 
     switch (addr) {
         case 0x4204: dvrp->intr_stat &= ~data; dvrp_clear_speed_dvr_intr(dvrp); break;

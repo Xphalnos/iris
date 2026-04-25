@@ -269,6 +269,14 @@ uint64_t ata_get_lba(struct ps2_ata* ata) {
     return ata->sector | (ata->lcyl << 8) | (ata->hcyl << 16) | ((ata->select & 0x0f) << 24);
 }
 
+uint64_t ata_get_nsectors(struct ps2_ata* ata) {
+    if (ata->nsector == 0) {
+        return 0x100;
+    }
+
+    return ata->nsector;
+}
+
 void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
     switch (cmd) {
         case ATA_C_IDENTIFY_DEVICE: {
@@ -282,7 +290,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
         case ATA_C_READ_DMA: {
             printf("ata: READ DMA (LBA %d COUNT %d)\n", ata->sector, ata->nsector);
 
-            ata->pending_sectors = ata->nsector - 1;
+            ata->pending_sectors = ata_get_nsectors(ata) - 1;
             ata->pending_lba = ata_get_lba(ata);
 
             ata->status |= ATA_STAT_DRQ;
@@ -295,7 +303,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
         case ATA_C_WRITE_DMA: {
             printf("ata: WRITE DMA (LBA %d COUNT %d)\n", ata->sector, ata->nsector);
 
-            ata->pending_sectors = ata->nsector;
+            ata->pending_sectors = ata_get_nsectors(ata);
             ata->pending_lba = ata_get_lba(ata);
 
             ata->status |= ATA_STAT_DRQ;
@@ -308,7 +316,7 @@ void ata_handle_command(struct ps2_ata* ata, uint16_t cmd) {
 
             ata_init_response(ata, 512);
 
-            ata->pending_sectors = ata->nsector - 1;
+            ata->pending_sectors = ata_get_nsectors(ata) - 1;
             ata->pending_lba = ata_get_lba(ata);
 
             ata->status |= ATA_STAT_DRQ;

@@ -169,8 +169,6 @@ void ps2_speed_send_irq(struct ps2_speed* speed, uint16_t irq) {
     speed->intr_stat |= irq;
 
     if (speed->intr_stat & speed->intr_mask) {
-        printf("speed: send irq %04x\n", irq);
-
         ps2_iop_intc_irq(speed->iop_intc, IOP_INTC_DEV9);
     }
 }

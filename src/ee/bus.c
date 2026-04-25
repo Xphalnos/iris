@@ -219,7 +219,7 @@ uint64_t ee_bus_read16(void* udata, uint32_t addr) {
         case 0x1a000006: return 2;
     }
 
-    fprintf(stderr, "bus: Unhandled 16-bit read from physical address 0x%08x\n", addr); // exit(1);
+    // fprintf(stderr, "bus: Unhandled 16-bit read from physical address 0x%08x\n", addr); // exit(1);
 
     return 0;
 }
@@ -447,7 +447,7 @@ void ee_bus_write16(void* udata, uint32_t addr, uint64_t data) {
         case 0x1f801472: return;
     }
 
-    printf("bus: Unhandled 16-bit write to physical address 0x%08x (0x%04lx)\n", addr, data);
+    // printf("bus: Unhandled 16-bit write to physical address 0x%08x (0x%04lx)\n", addr, data);
 }
 
 void ee_bus_write32(void* udata, uint32_t addr, uint64_t data) {
