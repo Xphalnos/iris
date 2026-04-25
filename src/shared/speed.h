@@ -7,8 +7,10 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "scheduler.h"
 #include "iop/intc.h"
 #include "speed/ata.h"
+#include "speed/dvrp.h"
 #include "speed/flash.h"
 #include "speed/eeprom.h"
 
@@ -64,12 +66,14 @@ struct ps2_speed {
     struct ps2_ata* ata;
     struct ps2_flash* flash;
     struct ps2_eeprom* eeprom;
+    struct ps2_dvrp* dvrp;
 
     struct ps2_iop_intc* iop_intc;
+    struct sched_state* sched;
 };
 
 struct ps2_speed* ps2_speed_create(void);
-void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc);
+void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc, struct sched_state* sched);
 void ps2_speed_destroy(struct ps2_speed* speed);
 uint64_t ps2_speed_read8(struct ps2_speed* speed, uint32_t addr);
 uint64_t ps2_speed_read16(struct ps2_speed* speed, uint32_t addr);
@@ -80,6 +84,7 @@ void ps2_speed_write32(struct ps2_speed* speed, uint32_t addr, uint64_t data);
 void ps2_speed_send_irq(struct ps2_speed* speed, uint16_t irq);
 int ps2_speed_load_hdd(struct ps2_speed* speed, const char* path);
 int ps2_speed_load_flash(struct ps2_speed* speed, const char* path);
+void ps2_speed_set_dvrp_enabled(struct ps2_speed* speed, int enabled);
 void ps2_speed_set_mac_address(struct ps2_speed* speed, const uint8_t* mac);
 
 #ifdef __cplusplus

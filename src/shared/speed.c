@@ -8,17 +8,20 @@ struct ps2_speed* ps2_speed_create(void) {
     return malloc(sizeof(struct ps2_speed));
 }
 
-void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc) {
+void ps2_speed_init(struct ps2_speed* speed, struct ps2_iop_intc* iop_intc, struct sched_state* sched) {
     memset(speed, 0, sizeof(struct ps2_speed));
 
     speed->iop_intc = iop_intc;
+    speed->sched = sched;
     speed->flash = ps2_flash_create();
     speed->ata = ps2_ata_create();
     speed->eeprom = ps2_eeprom_create();
+    speed->dvrp = ps2_dvrp_create();
 
     ps2_flash_init(speed->flash);
     ps2_ata_init(speed->ata, speed);
     ps2_eeprom_init(speed->eeprom);
+    ps2_dvrp_init(speed->dvrp, speed);
 
     // 0009 - TS
     // 0010 - ES1?
@@ -31,6 +34,7 @@ void ps2_speed_destroy(struct ps2_speed* speed) {
     ps2_flash_destroy(speed->flash);
     ps2_ata_destroy(speed->ata);
     ps2_eeprom_destroy(speed->eeprom);
+    ps2_dvrp_destroy(speed->dvrp);
 
     free(speed);
 }
@@ -59,6 +63,10 @@ uint64_t ps2_speed_read16(struct ps2_speed* speed, uint32_t addr) {
         return ps2_ata_read16(speed->ata, addr);
     }
 
+    if (addr >= 0x4200 && addr < 0x4240) {
+        return ps2_dvrp_read(speed->dvrp, addr);
+    }
+
     switch (addr) {
         case 0x0000: return speed->rev;
         case 0x0002: return speed->rev1;
@@ -72,7 +80,7 @@ uint64_t ps2_speed_read16(struct ps2_speed* speed, uint32_t addr) {
         case 0x0064: return speed->if_ctrl;
     }
 
-    // printf("speed: read16 %08x\n", addr); // exit(1);
+    printf("speed: read16 %08x <-------------------------------------------\n", addr); // exit(1);
 
     return 0;
 }
@@ -81,6 +89,10 @@ uint64_t ps2_speed_read32(struct ps2_speed* speed, uint32_t addr) {
 
     if (addr >= 0x4800 && addr < 0x4820) {
         return ps2_flash_read32(speed->flash, addr);
+    }
+
+    if (addr >= 0x4200 && addr < 0x4240) {
+        return ps2_dvrp_read(speed->dvrp, addr);
     }
 
     // printf("speed: read32 %08x\n", addr); // exit(1);
@@ -114,6 +126,12 @@ void ps2_speed_write16(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
         return;
     }
 
+    if (addr >= 0x4200 && addr < 0x4240) {
+        ps2_dvrp_write(speed->dvrp, addr, data);
+
+        return;
+    }
+
     switch (addr) {
         case 0x0024: speed->dma_ctrl = data; return;
         case 0x0032: speed->xfr_ctrl = data; return;
@@ -124,6 +142,8 @@ void ps2_speed_write16(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
         case 0x0074: speed->udma_mode = data; return;
         case 0x002a: speed->intr_mask = data; return;
     }
+
+    printf("speed: write16 %08x %04x <-------------------------------------------\n", addr, (uint16_t)data); // exit(1);
 
     // printf("speed: write16 %08x %08x\n", addr, data); // exit(1);
 }
@@ -136,6 +156,12 @@ void ps2_speed_write32(struct ps2_speed* speed, uint32_t addr, uint64_t data) {
         return;
     }
 
+    if (addr >= 0x4200 && addr < 0x4240) {
+        ps2_dvrp_write(speed->dvrp, addr, data);
+
+        return;
+    }
+
     // printf("speed: write32 %08x %08x\n", addr, data); // exit(1);
 }
 
@@ -143,6 +169,8 @@ void ps2_speed_send_irq(struct ps2_speed* speed, uint16_t irq) {
     speed->intr_stat |= irq;
 
     if (speed->intr_stat & speed->intr_mask) {
+        printf("speed: send irq %04x\n", irq);
+
         ps2_iop_intc_irq(speed->iop_intc, IOP_INTC_DEV9);
     }
 }
@@ -185,4 +213,12 @@ void ps2_speed_set_mac_address(struct ps2_speed* speed, const uint8_t* mac) {
     data[3] = data[0] + data[1] + data[2];
 
     ps2_eeprom_load(speed->eeprom, data);
+}
+
+void ps2_speed_set_dvrp_enabled(struct ps2_speed* speed, int enabled) {
+    if (enabled) {
+        speed->rev3 |= SPD_CAPS_DVR;
+    } else {
+        speed->rev3 &= ~SPD_CAPS_DVR;
+    }
 }

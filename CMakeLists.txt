@@ -200,6 +200,7 @@ target_sources(iris PRIVATE
     src/shared/sif.c
     src/shared/speed.c
     src/shared/speed/ata.c
+    src/shared/speed/dvrp.c
     src/shared/speed/eeprom.c
     src/shared/speed/flash.c
     src/shared/ata/raw.c

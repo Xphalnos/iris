@@ -107,7 +107,7 @@ void ps2_init(struct ps2_state* ps2) {
     ps2_fw_init(ps2->fw, ps2->iop_intc);
     ps2_sbus_init(ps2->sbus, ps2->ee_intc, ps2->iop_intc, ps2->sched);
     ps2_dev9_init(ps2->dev9, DEV9_TYPE_EXPBAY);
-    ps2_speed_init(ps2->speed, ps2->iop_intc);
+    ps2_speed_init(ps2->speed, ps2->iop_intc, ps2->sched);
     ps2_bios_init(ps2->bios);
     ps2_bios_init(ps2->rom1);
     ps2_bios_init(ps2->rom2);
@@ -451,6 +451,7 @@ void ps2_set_system(struct ps2_state* ps2, int system) {
     int ee_ram_size, iop_ram_size, mechacon_model;
 
     ps2_iop_dma_set_dev9_mode(ps2->iop_dma, IOP_DMA_DEV9_ATA);
+    ps2_speed_set_dvrp_enabled(ps2->speed, 0);
 
     // Destroy optional hardware
     if (ps2->s14x_nand) { s14x_nand_destroy(ps2->s14x_nand); ps2->s14x_nand = NULL; }
@@ -486,6 +487,8 @@ void ps2_set_system(struct ps2_state* ps2, int system) {
             ee_ram_size = RAM_SIZE_64MB;
             iop_ram_size = RAM_SIZE_8MB;
             mechacon_model = CDVD_MECHACON_DRAGON;
+
+            ps2_speed_set_dvrp_enabled(ps2->speed, 1);
         } break;
 
         case PS2_SYSTEM_TEST:

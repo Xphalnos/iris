@@ -394,33 +394,33 @@ static inline void cdvd_mg_clear(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mechacon_auth_80(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 80\n");
+    fprintf(stderr, "mg: Auth 80\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->mg_datatype = 0;
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_81(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 81\n");
+    fprintf(stderr, "mg: Auth 81\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->mg_datatype = 0;
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_82(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 82\n");
+    fprintf(stderr, "mg: Auth 82\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_83(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 83\n");
+    fprintf(stderr, "mg: Auth 83\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_84(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 84\n");
+    fprintf(stderr, "mg: Auth 84\n");
     cdvd_init_s_fifo(cdvd, 13);
     cdvd->s_fifo[0] = 0;
 
@@ -439,7 +439,7 @@ static inline void cdvd_s_mechacon_auth_84(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mechacon_auth_85(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 85\n");
+    fprintf(stderr, "mg: Auth 85\n");
     cdvd_init_s_fifo(cdvd, 13);
     cdvd->s_fifo[0] = 0;
 
@@ -458,19 +458,19 @@ static inline void cdvd_s_mechacon_auth_85(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mechacon_auth_86(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 86\n");
+    fprintf(stderr, "mg: Auth 86\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_87(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 87\n");
+    fprintf(stderr, "mg: Auth 87\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->s_fifo[0] = 0;
 }
 
 static inline void cdvd_s_mechacon_auth_88(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 88\n");
+    fprintf(stderr, "mg: Auth 88\n");
 
     cdvd_init_s_fifo(cdvd, 1);
 
@@ -509,13 +509,12 @@ static inline void cdvd_s_mechacon_auth_88(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mechacon_auth_8f(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Auth 8f\n");
+    fprintf(stderr, "mg: Auth 8f\n");
     cdvd_s_mechacon_auth_88(cdvd);
 }
 
-
 static inline void cdvd_s_mg_write_data(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Write Data\n");
+    fprintf(stderr, "mg: Write Data\n");
     cdvd_init_s_fifo(cdvd, 1);
 
     if ((size_t)cdvd->mg_size + (size_t)cdvd->s_param_index > (size_t)cdvd->mg_maxsize) {
@@ -533,7 +532,7 @@ static inline void cdvd_s_mg_write_data(struct ps2_cdvd* cdvd) {
     cdvd->s_fifo[0] = 0;
 }
 static inline void cdvd_s_mg_read_data(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read Data\n");
+    fprintf(stderr, "mg: Read Data\n");
 
     uint16_t count = cdvd->mg_size;
     if (count > 16)
@@ -550,7 +549,7 @@ static inline void cdvd_s_mg_read_data(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mg_write_hdr_start(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Write HDR Start\n");
+    fprintf(stderr, "mg: Write HDR Start\n");
     cdvd_init_s_fifo(cdvd, 1);
 
     cdvd->mg_size = 0;
@@ -561,7 +560,7 @@ static inline void cdvd_s_mg_write_hdr_start(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mg_read_bit_length(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read Bit Length\n");
+    fprintf(stderr, "mg: Read Bit Length\n");
     cdvd_init_s_fifo(cdvd, 3);
 
     int bit_ofs = mg_BIToffset(cdvd->mg_buffer);
@@ -601,7 +600,7 @@ static inline void cdvd_s_mg_read_bit_length(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mg_write_datain_length(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Write Datain Length\n");
+    fprintf(stderr, "mg: Write Datain Length\n");
     cdvd_init_s_fifo(cdvd, 1);
     cdvd->mg_size = 0;
     cdvd->mg_datatype = 0;
@@ -610,7 +609,7 @@ static inline void cdvd_s_mg_write_datain_length(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mg_write_dataout_length(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Write Dataout Length\n");
+    fprintf(stderr, "mg: Write Dataout Length\n");
     cdvd_init_s_fifo(cdvd, 1);
 
     uint16_t want = (uint16_t)(cdvd->s_params[0] | ((uint16_t)cdvd->s_params[1] << 8));
@@ -624,28 +623,28 @@ static inline void cdvd_s_mg_write_dataout_length(struct ps2_cdvd* cdvd) {
 }
 
 static inline void cdvd_s_mg_read_kbit(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read KBit\n");
+    fprintf(stderr, "mg: Read KBit\n");
     cdvd_init_s_fifo(cdvd, 9);
     cdvd->s_fifo[0] = 0;
     memcpy(&cdvd->s_fifo[1], cdvd->mg_kbit, 8);
 }
 
 static inline void cdvd_s_mg_read_kbit2(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read KBit2\n");
+    fprintf(stderr, "mg: Read KBit2\n");
     cdvd_init_s_fifo(cdvd, 9);
     cdvd->s_fifo[0] = 0;
     memcpy(&cdvd->s_fifo[1], cdvd->mg_kbit + 8, 8);
 }
 
 static inline void cdvd_s_mg_read_kcon(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read KCon\n");
+    fprintf(stderr, "mg: Read KCon\n");
     cdvd_init_s_fifo(cdvd, 9);
     cdvd->s_fifo[0] = 0;
     memcpy(&cdvd->s_fifo[1], cdvd->mg_kcon, 8);
 }
 
 static inline void cdvd_s_mg_read_kcon2(struct ps2_cdvd* cdvd) {
-    fprintf(stderr, "MG: Read KCon2\n");
+    fprintf(stderr, "mg: Read KCon2\n");
     cdvd_init_s_fifo(cdvd, 9);
     cdvd->s_fifo[0] = 0;
     memcpy(&cdvd->s_fifo[1], cdvd->mg_kcon + 8, 8);
@@ -704,6 +703,11 @@ static inline void cdvd_s_notice_game_start(struct ps2_cdvd* cdvd) {
 
     cdvd->s_fifo[0] = 0;
 }
+static inline void cdvd_s_set_medium_removal(struct ps2_cdvd* cdvd) {
+    cdvd_init_s_fifo(cdvd, 2);
+
+    cdvd->s_fifo[0] = 0;
+}
 static inline void cdvd_s_get_medium_removal(struct ps2_cdvd* cdvd) {
     cdvd_init_s_fifo(cdvd, 2);
 
@@ -743,7 +747,8 @@ void cdvd_handle_s_command(struct ps2_cdvd* cdvd, uint8_t cmd) {
         case 0x22: printf("cdvd: read_wakeup_time\n"); cdvd_s_read_wakeup_time(cdvd); break;
         case 0x24: printf("cdvd: rc_bypass_ctrl\n"); cdvd_s_rc_bypass_ctrl(cdvd); break;
         case 0x29: printf("cdvd: notice_game_start\n"); cdvd_s_notice_game_start(cdvd); break;
-        case 0x32: printf("cdvd: get_medium_removal\n"); cdvd_s_get_medium_removal(cdvd); break; 
+        case 0x31: printf("cdvd: set_medium_removal\n"); cdvd_s_set_medium_removal(cdvd); break;
+        case 0x32: printf("cdvd: get_medium_removal\n"); cdvd_s_get_medium_removal(cdvd); break;
         case 0x36: printf("cdvd: get_region_params\n"); cdvd_s_get_region_params(cdvd); break;
         case 0x40: printf("cdvd: open_config\n"); cdvd_s_open_config(cdvd); break;
         case 0x41: printf("cdvd: read_config\n"); cdvd_s_read_config(cdvd); break;

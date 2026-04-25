@@ -3425,7 +3425,7 @@ static inline void ee_i_xori(struct ee_state* ee, const ee_instruction& i) {
 static inline void ee_i_invalid(struct ee_state* ee, const ee_instruction& i) {
     fprintf(stderr, "ee: Invalid instruction %08x at PC=%08x\n", i.opcode, ee->pc);
 
-    exit(1);
+    // exit(1);
 }
 
 // Macro/custom instructions
@@ -4076,6 +4076,10 @@ static inline struct ee_block* ee_cache_block(struct ee_state* ee, int max_cycle
 
     struct ee_block& block = ee->block_cache[page][offset];
 
+#ifdef _EE_DISABLE_CACHE
+    block.instructions.clear();
+#endif
+
     block.start_pc = ee->pc;
     block.end_pc = ee->pc;
 
@@ -4121,6 +4125,10 @@ static inline struct ee_block* ee_cache_block(struct ee_state* ee, int max_cycle
 }
 
 static inline struct ee_block* ee_find_block(struct ee_state* ee, uint32_t pc) {
+#ifdef _EE_DISABLE_CACHE
+    return nullptr;
+#endif
+
     if (pc == ee->last_block_lookup_pc) {
         return ee->last_block_ptr;
     }
@@ -4168,6 +4176,14 @@ static inline bool ee_is_irq_pending(struct ee_state* ee) {
 
     return irq_enabled && (int0_pending || int1_pending);
 }
+
+// #include <memoryapi.h>
+
+// typedef void (*ee_compiled_block)(struct ee_state* ee);
+
+// ee_compiled_block ee_compile_block(struct ee_block* block) {
+//     void* mem = VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+// }
 
 static inline int _ee_run_block(struct ee_state* ee, int max_cycles) {
     struct ee_block* block = ee_find_block(ee, ee->pc);
