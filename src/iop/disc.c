@@ -734,7 +734,7 @@ char* disc_read_boot_elf(struct disc_state* disc, int s) {
             char* buf = malloc(((size >> 11) + 2) << 11);
             char* ptr = buf;
 
-            printf("iso: Boot ELF found at lba=%08x size=%08x\n", lba, dir->size_le, dir->size_le);
+            printf("iso: Boot ELF found at lba=%08x size=%08x\n", lba, dir->size_le);
 
             while (size > 0) {
                 if (!disc_read_sector(disc, ptr, lba++, DISC_SS_DATA)) {
