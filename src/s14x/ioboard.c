@@ -8,7 +8,7 @@ struct s14x_ioboard* s14x_ioboard_create(void) {
     return malloc(sizeof(struct s14x_ioboard));
 }
 
-int s14x_ioboard_init(struct s14x_ioboard* ioboard, int mode) {
+void s14x_ioboard_init(struct s14x_ioboard* ioboard, int mode) {
     memset(ioboard, 0, sizeof(struct s14x_ioboard));
 
     ioboard->version = 0x0104;

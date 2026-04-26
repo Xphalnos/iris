@@ -84,7 +84,7 @@ struct s14x_ioboard {
 };
 
 struct s14x_ioboard* s14x_ioboard_create(void);
-int s14x_ioboard_init(struct s14x_ioboard* ioboard, int mode);
+void s14x_ioboard_init(struct s14x_ioboard* ioboard, int mode);
 void s14x_ioboard_destroy(struct s14x_ioboard* ioboard);
 
 void s14x_ioboard_press_switch(struct s14x_ioboard* ioboard, uint16_t mask);

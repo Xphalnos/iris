@@ -8,7 +8,7 @@ struct s14x_aiboard* s14x_aiboard_create(void) {
     return malloc(sizeof(struct s14x_aiboard));
 }
 
-int s14x_aiboard_init(struct s14x_aiboard* aiboard) {
+void s14x_aiboard_init(struct s14x_aiboard* aiboard) {
     memset(aiboard, 0, sizeof(struct s14x_aiboard));
 
     aiboard->version = 0x0104;

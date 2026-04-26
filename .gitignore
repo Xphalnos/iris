@@ -1,4 +1,3 @@
-SDL2-2.32.0/
 .vscode/
 build/
 bin/
@@ -8,10 +7,8 @@ roms/
 .vs/
 ac/
 screens/
-main2.cpp
-compare
-compare.cpp
 imgui.ini
+iris.res
 *.AppImage
 *.expected
 *.dump
