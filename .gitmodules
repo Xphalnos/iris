@@ -33,6 +33,3 @@
 [submodule "deps/SDL_GameControllerDB"]
 	path = deps/SDL_GameControllerDB
 	url = https://github.com/mdqinc/SDL_GameControllerDB
-[submodule "deps/llvm"]
-	path = deps/llvm
-	url = https://github.com/llvm/llvm-project.git
