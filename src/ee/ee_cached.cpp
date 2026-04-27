@@ -3216,6 +3216,8 @@ static inline void ee_write_pagetable(struct ee_state* ee, const struct ee_vtlb_
         ee->pagetable[vpn1+i].spr = entry->s;
         ee->pagetable[vpn1+i].global = entry->g;
     }
+
+    ee_flush_cache(ee);
 }
 static inline void ee_i_tlbwi(struct ee_state* ee, const ee_instruction& i) {
     struct ee_vtlb_entry* entry = &ee->vtlb[ee->index & 0x3f];
@@ -4212,10 +4214,6 @@ static inline int _ee_run_block(struct ee_state* ee, int max_cycles) {
 
             break;
         }
-    }
-
-    if (ee->next_pc == 0x100000) {
-        ee_flush_cache(ee);
     }
 
     ee->count += block->cycles;
