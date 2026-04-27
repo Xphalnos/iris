@@ -36,6 +36,3 @@
 [submodule "deps/llvm"]
 	path = deps/llvm
 	url = https://github.com/llvm/llvm-project.git
-[submodule "deps/zlib"]
-	path = deps/zlib
-	url = https://github.com/madler/zlib

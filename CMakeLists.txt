@@ -10,7 +10,6 @@ set_source_files_properties(${OSX_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Reso
 
 # Statically link SDL3 for Linux targets
 set(SDL_STATIC ON)
-set(ASMJIT_STATIC ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Git QUIET)
