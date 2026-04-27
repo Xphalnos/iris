@@ -31,8 +31,19 @@ else()
     set(GIT_VERSION_STRING "git-not-found")
 endif()
 
+add_subdirectory(deps/llvm/llvm)
+
 message(STATUS "Project Version: ${GIT_VERSION_STRING}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+set(LLVM_LINK_COMPONENTS Core OrcJIT Support nativecodegen)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+include_directories(${LLVM_INCLUDE_DIRS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # You can then use GIT_VERSION_STRING in your project, e.g., to generate a header file:
 # configure_file(
@@ -56,7 +67,7 @@ target_compile_options(iris PUBLIC "-fno-exceptions" "-Wno-c++11-narrowing")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 set(PARALLEL_GS_STANDALONE ON CACHE BOOL "" FORCE)
-add_subdirectory(deps/asmjit EXCLUDE_FROM_ALL)
+
 add_subdirectory(deps/tomlplusplus EXCLUDE_FROM_ALL)
 add_subdirectory(deps/libdeflate EXCLUDE_FROM_ALL)
 add_subdirectory(deps/parallel-gs EXCLUDE_FROM_ALL)
@@ -225,7 +236,6 @@ target_sources(iris PRIVATE
 )
 
 target_include_directories(iris PRIVATE
-    deps/asmjit
     deps/imgui
     deps/imgui/backends
     deps/implot
@@ -240,13 +250,17 @@ target_include_directories(iris PRIVATE
     res
 )
 
+llvm_map_components_to_libnames(llvm_libs ${LLVM_LINK_COMPONENTS})
+
+message(STATUS "LLVM libraries: ${llvm_libs}")
+
 target_link_libraries(iris PUBLIC
-    asmjit::asmjit
     libdeflate::libdeflate_static
     tomlplusplus::tomlplusplus
     SDL3::SDL3-static
     parallel-gs
     chdr-static
+    ${llvm_libs}
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
